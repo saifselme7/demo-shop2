@@ -494,9 +494,13 @@ DROP POLICY IF EXISTS "Admins read payment proofs" ON storage.objects;
 CREATE POLICY "Admins read payment proofs" ON storage.objects
     FOR SELECT TO authenticated USING (bucket_id = 'payment-proofs');
 
-DROP POLICY IF EXISTS "Admins manage payment proofs" ON storage.objects;
-CREATE POLICY "Admins manage payment proofs" ON storage.objects
-    FOR UPDATE, DELETE TO authenticated USING (bucket_id = 'payment-proofs');
+DROP POLICY IF EXISTS "Admins update payment proofs" ON storage.objects;
+CREATE POLICY "Admins update payment proofs" ON storage.objects
+    FOR UPDATE TO authenticated USING (bucket_id = 'payment-proofs') WITH CHECK (bucket_id = 'payment-proofs');
+
+DROP POLICY IF EXISTS "Admins delete payment proofs" ON storage.objects;
+CREATE POLICY "Admins delete payment proofs" ON storage.objects
+    FOR DELETE TO authenticated USING (bucket_id = 'payment-proofs');
 
 -- ============================================================================
 -- 15. SEED — STORE SETTINGS
