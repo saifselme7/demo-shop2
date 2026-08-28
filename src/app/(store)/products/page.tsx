@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { ProductCard } from '@/components/store/ProductCard'
 import { Category, Product } from '@/types/database'
-import { Search, SlidersHorizontal, Filter, PackageOpen } from 'lucide-react'
+import { Search, PackageOpen, SlidersHorizontal } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,162 +19,112 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const supabase = createClient()
   const { category: categorySlug, search: searchQuery, sort: sortOption } = searchParams
 
-  // Fetch all categories for filter tabs
   const { data: categoriesData } = await supabase
     .from('categories')
     .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
     .order('name', { ascending: true })
 
   const categories = (categoriesData as Category[]) || []
 
-  // Find category id if categorySlug is provided
   let selectedCategoryId: string | null = null
   if (categorySlug) {
     const selectedCat = categories.find((c) => c.slug === categorySlug)
-    if (selectedCat) {
-      selectedCategoryId = selectedCat.id
-    }
+    if (selectedCat) selectedCategoryId = selectedCat.id
   }
 
-  // Build products query
-  let query = supabase
-    .from('products')
-    .select(`
-      *,
-      category:categories(*)
-    `)
+  let query = supabase.from('products').select('*, category:categories(*)').eq('is_available', true)
 
-  if (selectedCategoryId) {
-    query = query.eq('category_id', selectedCategoryId)
-  }
-
+  if (selectedCategoryId) query = query.eq('category_id', selectedCategoryId)
   if (searchQuery && searchQuery.trim().length > 0) {
     query = query.ilike('name', `%${searchQuery.trim()}%`)
   }
 
-  // Sorting
-  if (sortOption === 'price-asc') {
-    query = query.order('price', { ascending: true })
-  } else if (sortOption === 'price-desc') {
-    query = query.order('price', { ascending: false })
-  } else {
-    // Default newest
-    query = query.order('created_at', { ascending: false })
-  }
+  if (sortOption === 'price-asc') query = query.order('price', { ascending: true })
+  else if (sortOption === 'price-desc') query = query.order('price', { ascending: false })
+  else query = query.order('created_at', { ascending: false })
 
   const { data: productsData } = await query
   const products = (productsData as unknown as Product[]) || []
 
+  const sortHref = (sort: string) => ({
+    pathname: '/products',
+    query: {
+      ...(categorySlug ? { category: categorySlug } : {}),
+      ...(searchQuery ? { search: searchQuery } : {}),
+      ...(sort ? { sort } : {}),
+    },
+  })
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">
-      {/* Page Header */}
-      <div className="border-b border-slate-200/80 pb-6">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Product Catalog
+    <div className="container-x py-10 sm:py-14 space-y-8">
+      {/* Header */}
+      <div className="border-b border-line pb-6">
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
+          كتالوج المنتجات
         </h1>
-        <p className="text-slate-500 mt-2 text-sm sm:text-base">
-          Browse our entire selection of handcrafted beverages and culinary items.
+        <p className="text-muted mt-2 text-sm sm:text-base">
+          تصفّح أحدث تشكيلاتنا من الملابس والاكسسوارات.
         </p>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Search Form */}
-          <form method="GET" className="relative w-full md:max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      {/* Filter bar */}
+      <div className="bg-background p-4 rounded-3xl border border-line shadow-card space-y-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <form method="GET" className="relative w-full md:max-w-sm">
+            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
             <input
               type="text"
               name="search"
               defaultValue={searchQuery || ''}
-              placeholder="Search products by name..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm bg-slate-50/50"
+              placeholder="ابحث عن منتج..."
+              className="w-full pr-10 pl-4 py-2.5 rounded-full border border-line focus:outline-none focus:ring-2 focus:ring-foreground text-sm bg-offwhite"
             />
             {categorySlug && <input type="hidden" name="category" value={categorySlug} />}
             {sortOption && <input type="hidden" name="sort" value={sortOption} />}
           </form>
 
-          {/* Sort Selector */}
-          <div className="flex items-center gap-2 w-full md:w-auto justify-end">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
-              Sort by:
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider whitespace-nowrap flex items-center gap-1">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              الترتيب:
             </span>
             <div className="flex gap-1.5 flex-wrap">
-              <Link
-                href={{
-                  pathname: '/products',
-                  query: {
-                    ...(categorySlug ? { category: categorySlug } : {}),
-                    ...(searchQuery ? { search: searchQuery } : {}),
-                    sort: 'newest',
-                  },
-                }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  !sortOption || sortOption === 'newest'
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Newest
-              </Link>
-              <Link
-                href={{
-                  pathname: '/products',
-                  query: {
-                    ...(categorySlug ? { category: categorySlug } : {}),
-                    ...(searchQuery ? { search: searchQuery } : {}),
-                    sort: 'price-asc',
-                  },
-                }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  sortOption === 'price-asc'
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Price: Low to High
-              </Link>
-              <Link
-                href={{
-                  pathname: '/products',
-                  query: {
-                    ...(categorySlug ? { category: categorySlug } : {}),
-                    ...(searchQuery ? { search: searchQuery } : {}),
-                    sort: 'price-desc',
-                  },
-                }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  sortOption === 'price-desc'
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Price: High to Low
-              </Link>
+              {[
+                { key: '', label: 'الأحدث' },
+                { key: 'price-asc', label: 'السعر: الأقل' },
+                { key: 'price-desc', label: 'السعر: الأعلى' },
+              ].map((opt) => {
+                const active = (sortOption || '') === opt.key
+                return (
+                  <Link
+                    key={opt.key}
+                    href={sortHref(opt.key)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                      active ? 'bg-foreground text-background' : 'bg-neutral-100 text-muted hover:bg-neutral-200'
+                    }`}
+                  >
+                    {opt.label}
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-2 border-t border-slate-100">
+        {/* Category pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-2 border-t border-line">
           <Link
-            href={{
-              pathname: '/products',
-              query: {
-                ...(searchQuery ? { search: searchQuery } : {}),
-                ...(sortOption ? { sort: sortOption } : {}),
-              },
-            }}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
-              !categorySlug
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
+            href={sortHref('')}
+            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+              !categorySlug ? 'bg-foreground text-background' : 'bg-neutral-100 text-muted hover:bg-neutral-200'
             }`}
           >
-            All Categories ({products.length})
+            الكل ({products.length})
           </Link>
           {categories.map((cat) => {
-            const isSelected = categorySlug === cat.slug
+            const selected = categorySlug === cat.slug
             return (
               <Link
                 key={cat.id}
@@ -186,10 +136,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     ...(sortOption ? { sort: sortOption } : {}),
                   },
                 }}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
-                  isSelected
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
+                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+                  selected ? 'bg-foreground text-background' : 'bg-neutral-100 text-muted hover:bg-neutral-200'
                 }`}
               >
                 {cat.name}
@@ -199,30 +147,28 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
       </div>
 
-      {/* Product Grid */}
+      {/* Grid */}
       {products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 p-8">
-          <PackageOpen className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-slate-800">No products found</h3>
-          <p className="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
+        <div className="text-center py-20 bg-background rounded-3xl border border-dashed border-line p-8">
+          <PackageOpen className="w-12 h-12 text-muted mx-auto mb-3" />
+          <h3 className="text-lg font-bold">لا توجد منتجات</h3>
+          <p className="text-sm text-muted mt-1 max-w-sm mx-auto">
             {searchQuery
-              ? `No products matching "${searchQuery}". Try adjusting your search term.`
-              : 'There are no products available in this category yet.'}
+              ? `لم نجد نتائج مطابقة لـ "${searchQuery}". جرّب كلمات بحث أخرى.`
+              : 'لا توجد منتجات متاحة في هذا القسم حالياً.'}
           </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Link
-              href="/products"
-              className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors"
-            >
-              Reset Filters
-            </Link>
-          </div>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 px-5 py-2.5 mt-5 rounded-full bg-foreground text-background text-sm font-bold hover:bg-neutral-800 transition-colors"
+          >
+            إعادة تعيين الفلاتر
+          </Link>
         </div>
       )}
     </div>

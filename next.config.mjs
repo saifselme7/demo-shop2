@@ -1,16 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'hppzdjhthltyblmvpbod.supabase.co',
+        hostname: 'pluilmszldtetbumdbxt.supabase.co',
         port: '',
         pathname: '/**',
       },

@@ -41,8 +41,8 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
   return (
     <div className="flex-1 flex flex-col">
       <AdminHeader
-        title={`Edit "${product.name}"`}
-        description="Update pricing, stock availability, category, description, and images."
+        title={`تعديل: ${product.name}`}
+        description="حدّث الأسعار والمخزون والتصنيف والوصف والصور."
         actionButton={
           <Link
             href="/admin/products"

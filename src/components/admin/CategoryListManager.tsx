@@ -103,7 +103,7 @@ export function CategoryListManager({
   }
 
   const defaultImage =
-    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=150&q=80'
+    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=150&q=80'
 
   return (
     <div className="space-y-6">
@@ -136,9 +136,9 @@ export function CategoryListManager({
       {/* Top action bar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
         <div>
-          <h3 className="font-bold text-slate-900 text-base">Menu Categories</h3>
+          <h3 className="font-bold text-slate-900 text-base">تصنيفات المتجر</h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Total {categories.length} categories configured in database
+            إجمالي {categories.length} تصنيف
           </p>
         </div>
 
@@ -147,7 +147,7 @@ export function CategoryListManager({
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-sm shadow-amber-500/20"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>New Category</span>
+          <span>تصنيف جديد</span>
         </button>
       </div>
 
@@ -189,6 +189,15 @@ export function CategoryListManager({
                     </td>
                     <td className="px-6 py-4 text-xs text-slate-500 max-w-xs truncate">
                       {cat.description || '—'}
+                      <span
+                        className={`mr-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                          cat.is_active
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                        }`}
+                      >
+                        {cat.is_active ? 'نشط' : 'غير نشط'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-xs text-slate-500">
                       {formatDate(cat.created_at)}

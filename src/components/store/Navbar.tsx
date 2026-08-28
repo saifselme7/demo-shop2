@@ -1,69 +1,79 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Store, ShoppingBag, Menu, X, Shield, Search } from 'lucide-react'
+import { ShoppingBag, Menu, X } from 'lucide-react'
+import { useCart } from '@/context/CartContext'
+import { cn } from '@/lib/utils'
 
-export function StoreNavbar() {
+interface StoreNavbarProps {
+  storeName: string
+  storeNameEn: string
+}
+
+export function StoreNavbar({ storeName, storeNameEn }: StoreNavbarProps) {
   const pathname = usePathname()
+  const { itemCount, isLoaded } = useCart()
   const [isScrolled, setIsScrolled] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const onScroll = () => setIsScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const navLinks = [
-    { label: 'Home', href: '/' },
-    { label: 'All Products', href: '/products' },
+  useEffect(() => setMenuOpen(false), [pathname])
+
+  const links = [
+    { label: 'الرئيسية', href: '/' },
+    { label: 'المنتجات', href: '/products' },
+    { label: 'متابعة الطلب', href: '/orders/track' },
   ]
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full transition-all duration-200 ${
+      className={cn(
+        'sticky top-0 z-40 w-full transition-all duration-300',
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200/80'
-          : 'bg-white border-b border-slate-100'
-      }`}
+          ? 'bg-background/90 backdrop-blur-xl border-b border-line shadow-sm'
+          : 'bg-background border-b border-transparent'
+      )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container-x">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <Store className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-foreground text-background flex items-center justify-center font-black text-lg tracking-tight group-hover:scale-105 transition-transform">
+              س
             </div>
-            <div>
-              <span className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1.5">
-                SAIF<span className="text-amber-600">STORE</span>
+            <div className="leading-tight">
+              <span className="text-xl font-black tracking-tight text-foreground block">
+                {storeName}
               </span>
-              <span className="hidden sm:block text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                Premium Store & Cafe
+              <span className="hidden sm:block text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">
+                {storeNameEn} — Egyptian Clothing
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const isActive =
-                link.href === '/'
-                  ? pathname === '/'
-                  : pathname.startsWith(link.href)
+            {links.map((link) => {
+              const active =
+                link.href === '/' ? pathname === '/' : pathname.startsWith(link.href)
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                    isActive
-                      ? 'text-amber-700 bg-amber-50'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
+                  className={cn(
+                    'px-4 py-2 rounded-full text-sm font-semibold transition-colors',
+                    active
+                      ? 'text-background bg-foreground'
+                      : 'text-muted hover:text-foreground hover:bg-neutral-100'
+                  )}
                 >
                   {link.label}
                 </Link>
@@ -71,54 +81,46 @@ export function StoreNavbar() {
             })}
           </nav>
 
-          {/* Right Action buttons */}
-          <div className="flex items-center gap-3">
+          {/* Right actions */}
+          <div className="flex items-center gap-2">
             <Link
-              href="/products"
-              className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors md:hidden"
-              aria-label="Search"
+              href="/cart"
+              className="relative inline-flex items-center justify-center p-2.5 rounded-full text-foreground hover:bg-neutral-100 transition-colors"
+              aria-label="سلة التسوق"
             >
-              <Search className="w-5 h-5" />
+              <ShoppingBag className="w-6 h-6" />
+              {isLoaded && itemCount > 0 && (
+                <span className="absolute -top-0.5 -left-0.5 min-w-[20px] h-5 px-1 rounded-full bg-foreground text-background text-[11px] font-bold flex items-center justify-center ring-2 ring-background transition-transform duration-300 animate-in fade-in">
+                  {itemCount}
+                </span>
+              )}
             </Link>
 
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200/90 rounded-xl transition-all border border-slate-200/60 shadow-sm"
-            >
-              <Shield className="w-4 h-4 text-amber-600" />
-              <span>Admin Portal</span>
-            </Link>
-
-            {/* Mobile menu button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl md:hidden transition-colors"
-              aria-label="Toggle navigation"
+              onClick={() => setMenuOpen((v) => !v)}
+              className="p-2.5 rounded-full text-foreground hover:bg-neutral-100 md:hidden transition-colors"
+              aria-label="القائمة"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile dropdown menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-2 animate-in slide-in-from-top-2">
-          {navLinks.map((link) => {
-            const isActive =
-              link.href === '/'
-                ? pathname === '/'
-                : pathname.startsWith(link.href)
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="md:hidden border-t border-line bg-background px-4 py-4 space-y-1 animate-in fade-in slide-in-from-top-1 duration-200">
+          {links.map((link) => {
+            const active =
+              link.href === '/' ? pathname === '/' : pathname.startsWith(link.href)
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                  isActive
-                    ? 'text-amber-700 bg-amber-50'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
+                className={cn(
+                  'block px-4 py-3 rounded-xl text-sm font-semibold transition-colors',
+                  active ? 'text-background bg-foreground' : 'text-foreground hover:bg-neutral-100'
+                )}
               >
                 {link.label}
               </Link>

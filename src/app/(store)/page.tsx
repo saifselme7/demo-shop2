@@ -4,120 +4,143 @@ import { createClient } from '@/lib/supabase/server'
 import { HeroBanner } from '@/components/store/HeroBanner'
 import { ProductCard } from '@/components/store/ProductCard'
 import { CategoryCard } from '@/components/store/CategoryCard'
+import { Reveal } from '@/components/store/Reveal'
+import { getStoreSettings } from '@/lib/store-settings'
 import { Product, Category } from '@/types/database'
-import { ArrowRight, Sparkles, Layers, Coffee } from 'lucide-react'
+import { ArrowLeft, Sparkles, Layers } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const supabase = createClient()
+  const settings = await getStoreSettings()
 
-  // Fetch categories
   const { data: categoriesData } = await supabase
     .from('categories')
     .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
     .order('name', { ascending: true })
 
-  // Fetch featured products with their category
-  const { data: productsData } = await supabase
+  const { data: featuredData } = await supabase
     .from('products')
-    .select(`
-      *,
-      category:categories(*)
-    `)
-    .order('created_at', { ascending: false })
+    .select('*, category:categories(*)')
+    .eq('is_featured', true)
+    .eq('is_available', true)
+    .order('sort_order', { ascending: true })
     .limit(8)
 
+  const { data: newData } = await supabase
+    .from('products')
+    .select('*, category:categories(*)')
+    .eq('is_available', true)
+    .order('created_at', { ascending: false })
+    .limit(4)
+
   const categories = (categoriesData as Category[]) || []
-  const products = (productsData as unknown as Product[]) || []
+  const featured = (featuredData as unknown as Product[]) || []
+  const newest = (newData as unknown as Product[]) || []
 
   return (
-    <div className="space-y-16 sm:space-y-24 pb-20">
-      {/* Hero */}
-      <HeroBanner />
+    <div className="pb-20">
+      {/* Hero — appears immediately */}
+      <HeroBanner
+        title={String(settings.hero_title)}
+        subtitle={String(settings.hero_subtitle)}
+      />
 
-      {/* Featured Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+      {/* Categories */}
+      <section className="container-x pt-16 sm:pt-20">
+        <Reveal className="flex items-end justify-between mb-8">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md mb-2">
-              <Layers className="w-3.5 h-3.5" />
-              <span>Browse Categories</span>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted mb-2">
+              <Layers className="w-4 h-4" />
+              <span>التصنيفات</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Curated Collections
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+              تسوّق حسب القسم
             </h2>
           </div>
           <Link
             href="/products"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-amber-700 hover:text-amber-800 transition-colors"
+            className="inline-flex items-center gap-1 text-sm font-bold text-foreground hover:opacity-70 transition-opacity"
           >
-            <span>Browse Full Menu</span>
-            <ArrowRight className="w-4 h-4" />
+            كل المنتجات
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-        </div>
+        </Reveal>
 
         {categories.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {categories.map((category, i) => (
+              <Reveal key={category.id} delay={i * 60}>
+                <CategoryCard category={category} />
+              </Reveal>
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-200 p-8">
-            <Layers className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-            <p className="text-slate-600 font-medium">No categories found in database yet.</p>
-            <p className="text-xs text-slate-400 mt-1">Run the schema SQL in your Supabase SQL Editor or create them in the Admin Dashboard.</p>
-          </div>
+          <p className="text-muted text-sm">لم تُضف تصنيفات بعد.</p>
         )}
       </section>
 
-      {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+      {/* Featured products */}
+      <section className="container-x pt-16 sm:pt-24">
+        <Reveal className="flex items-end justify-between mb-8">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Featured Menu</span>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted mb-2">
+              <Sparkles className="w-4 h-4" />
+              <span>مختارات</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Popular Items
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+              الأكثر تميزاً
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Handpicked customer favorites fresh from our kitchen and barista bar.
-            </p>
           </div>
-          <Link
-            href="/products"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-colors shadow-sm"
-          >
-            <span>View All Items</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+        </Reveal>
 
-        {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+        {featured.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {featured.map((product, i) => (
+              <Reveal key={product.id} delay={(i % 4) * 70}>
+                <ProductCard product={product} />
+              </Reveal>
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200 p-8">
-            <Coffee className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-slate-800">No products found</h3>
-            <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-              No products found in the database. Run the seed script in Supabase or add your first product through the admin panel.
-            </p>
-            <Link
-              href="/admin/products/new"
-              className="inline-flex items-center gap-2 px-4 py-2 mt-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm transition-colors shadow-sm"
-            >
-              Add First Product
-            </Link>
-          </div>
+          <p className="text-muted text-sm">لا توجد منتجات مميزة بعد.</p>
         )}
       </section>
+
+      {/* New arrivals */}
+      {newest.length > 0 && (
+        <section className="container-x pt-16 sm:pt-24">
+          <Reveal className="flex items-end justify-between mb-8">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted mb-2">
+                <Sparkles className="w-4 h-4" />
+                <span>وصل حديثاً</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+                جديد المتجر
+              </h2>
+            </div>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-1 text-sm font-bold text-foreground hover:opacity-70 transition-opacity"
+            >
+              عرض الكل
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </Reveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {newest.map((product, i) => (
+              <Reveal key={product.id} delay={(i % 4) * 70}>
+                <ProductCard product={product} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }
