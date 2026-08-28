@@ -136,7 +136,7 @@ export function ProductListTable({
   }
 
   const defaultImage =
-    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=150&q=80'
+    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=150&q=80'
 
   return (
     <div className="space-y-6">
@@ -249,8 +249,13 @@ export function ProductListTable({
                           />
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 text-sm">
+                          <p className="font-bold text-slate-900 text-sm flex items-center gap-2">
                             {product.name}
+                            {product.is_featured && (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">
+                                مميّز
+                              </span>
+                            )}
                           </p>
                           <p className="text-xs text-slate-400 font-mono">
                             /{product.slug}
@@ -275,6 +280,16 @@ export function ProductListTable({
                       <span className="text-base font-extrabold text-slate-900">
                         {formatPrice(product.price)}
                       </span>
+                      {product.old_price != null && product.old_price > product.price && (
+                        <span className="block text-xs text-slate-400 line-through">
+                          {formatPrice(product.old_price)}
+                        </span>
+                      )}
+                      {product.stock != null && product.stock >= 0 && (
+                        <span className="block text-[11px] text-slate-400 mt-0.5">
+                          المخزون: {product.stock}
+                        </span>
+                      )}
                     </td>
 
                     {/* Availability Toggle Switch */}

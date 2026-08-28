@@ -1,73 +1,87 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, ShieldCheck, Zap } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowLeft, Truck, ShieldCheck, CreditCard } from 'lucide-react'
 
-export function HeroBanner() {
+interface HeroBannerProps {
+  title: string
+  subtitle: string
+}
+
+export function HeroBanner({ title, subtitle }: HeroBannerProps) {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-amber-50/70 via-slate-50 to-white py-16 sm:py-24 border-b border-slate-200/60">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.amber.100),transparent)] opacity-60" />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/80 border border-amber-200 text-amber-900 text-xs font-semibold shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Real-time Supabase Database Integration</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-tight">
-            Crafted for Taste, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800">
-              Powered by Live Data.
+    <section className="relative overflow-hidden bg-foreground text-background">
+      <div className="container-x py-16 sm:py-24 lg:py-28">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Copy — appears immediately, no reveal wrapper */}
+          <div className="space-y-7">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-semibold tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-background" />
+              براند ملابس مصري — طُرز جديدة كل موسم
             </span>
-          </h1>
 
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            Welcome to <span className="font-semibold text-slate-900">SAIF STORE</span>. Every product, price, category, and availability status updates instantly when modified in the store manager dashboard.
-          </p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.15] tracking-tight text-balance">
+              {title}
+              <span className="block mt-2 text-neutral-400">بجودة تُحسب لك.</span>
+            </h1>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm sm:text-base shadow-lg shadow-amber-600/25 transition-all hover:scale-[1.02]"
-            >
-              <span>Explore All Products</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <p className="text-neutral-300 text-base sm:text-lg leading-relaxed max-w-lg">
+              {subtitle}
+            </p>
 
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm sm:text-base border border-slate-200 shadow-sm transition-all hover:scale-[1.02]"
-            >
-              <Zap className="w-4 h-4 text-amber-600" />
-              <span>Open Admin Dashboard</span>
-            </Link>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Link
+                href="/products"
+                className="btn-press inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-background text-foreground font-bold text-sm hover:bg-neutral-200 shadow-lg"
+              >
+                تسوّق المجموعة
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/orders/track"
+                className="btn-press inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-white/25 text-background font-bold text-sm hover:bg-white/10"
+              >
+                تتبع طلبك
+              </Link>
+            </div>
+
+            {/* Trust highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6">
+              <div className="flex items-center gap-2.5 text-xs text-neutral-300">
+                <Truck className="w-5 h-5 text-neutral-400" />
+                توصيل سريع لجميع المحافظات
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-neutral-300">
+                <ShieldCheck className="w-5 h-5 text-neutral-400" />
+                خامات مضمونة
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-neutral-300">
+                <CreditCard className="w-5 h-5 text-neutral-400" />
+                فودافون كاش وانستاباي
+              </div>
+            </div>
           </div>
 
-          {/* Highlights */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-8 max-w-2xl mx-auto text-left">
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <span className="text-xs font-medium text-slate-700">Row Level Security Protected</span>
+          {/* Hero image */}
+          <div className="relative hidden lg:block">
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-neutral-800 shadow-2xl">
+              <Image
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80"
+                alt="تشكيلة ملابس عصرية"
+                fill
+                priority
+                sizes="(max-width: 1024px) 0vw, 50vw"
+                className="object-cover"
+              />
             </div>
-
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <span className="text-xs font-medium text-slate-700">Supabase Storage Image Bucket</span>
-            </div>
-
-            <div className="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                <Zap className="w-4 h-4" />
-              </div>
-              <span className="text-xs font-medium text-slate-700">Instant Admin Synced Updates</span>
+            {/* floating card */}
+            <div className="absolute -bottom-5 -left-5 bg-background text-foreground rounded-2xl shadow-2xl px-5 py-4 max-w-[240px]">
+              <p className="text-2xl font-black">+٨ تصنيفات</p>
+              <p className="text-xs text-muted">تيشيرتات · هوديز · بناطيل وأكثر</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

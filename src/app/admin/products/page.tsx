@@ -30,8 +30,8 @@ export default async function AdminProductsPage() {
   return (
     <div className="flex-1 flex flex-col">
       <AdminHeader
-        title="Products Inventory"
-        description="Add, edit, delete, and adjust prices or availability of your store products."
+        title="إدارة المنتجات"
+        description="أضف وعدّل واحذف المنتجات وتحكم في الأسعار والتوفر والمخزون."
       />
 
       <div className="p-6 sm:p-8 max-w-7xl w-full">

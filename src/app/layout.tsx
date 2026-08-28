@@ -1,9 +1,28 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { CartProvider } from '@/context/CartContext'
 
 export const metadata: Metadata = {
-  title: 'SAIF STORE | Premium Specialty Store & Cafe',
-  description: 'Explore our artisan coffees, gourmet smash burgers, delicious desserts, and refreshing beverages at SAIF STORE.',
+  title: {
+    default: 'سيف ستور | براند ملابس مصري عصري',
+    template: '%s | سيف ستور',
+  },
+  description:
+    'سيف ستور — متجر ملابس مصري عصري. تيشيرتات، هوديز، بناطيل، قمصان، جاكيتات ومزيد من أحدث صيحات الموضة. توصيل سريع لجميع محافظات مصر.',
+  keywords: [
+    'ملابس مصر',
+    'تيشيرتات',
+    'هوديز',
+    'موضة',
+    'سيف ستور',
+    'تسوق أونلاين مصر',
+  ],
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0a0a0a',
 }
 
 export default function RootLayout({
@@ -12,9 +31,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="h-full scroll-smooth">
-      <body className="min-h-full flex flex-col antialiased bg-slate-50 text-slate-900 selection:bg-amber-100 selection:text-amber-900">
-        {children}
+    <html lang="ar" dir="rtl" className="h-full scroll-smooth">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-full flex flex-col antialiased bg-offwhite text-foreground selection:bg-foreground selection:text-offwhite">
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   )

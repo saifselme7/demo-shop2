@@ -2,45 +2,41 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Category } from '@/types/database'
-import { ArrowRight } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
-interface CategoryCardProps {
-  category: Category
-  productCount?: number
-}
+const FALLBACK_IMG =
+  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80'
 
-export function CategoryCard({ category, productCount }: CategoryCardProps) {
-  const defaultImage =
-    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80'
-
+export function CategoryCard({ category }: { category: Category }) {
   return (
     <Link
       href={`/categories/${category.slug}`}
-      className="group relative flex flex-col justify-end overflow-hidden rounded-2xl aspect-[16/10] bg-slate-900 shadow-md hover:shadow-xl transition-all duration-300"
+      className="group relative flex flex-col justify-end overflow-hidden rounded-3xl aspect-[16/10] bg-foreground shadow-card hover:shadow-lift transition-all duration-300"
     >
       <Image
-        src={category.image_url || defaultImage}
+        src={category.image_url || FALLBACK_IMG}
         alt={category.name}
         fill
-        sizes="(max-width: 768px) 100vw, 33vw"
-        className="object-cover group-hover:scale-110 group-hover:opacity-90 transition-all duration-500 opacity-70"
+        sizes="(max-width: 768px) 100vw, 25vw"
+        className="object-cover opacity-80 group-hover:scale-110 group-hover:opacity-70 transition-all duration-700"
+        loading="lazy"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
       <div className="relative p-5 z-10">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
+            <h3 className="text-lg font-black text-white group-hover:text-neutral-200 transition-colors">
               {category.name}
             </h3>
             {category.description && (
-              <p className="text-xs text-slate-300 line-clamp-1 mt-0.5">
+              <p className="text-xs text-neutral-300 line-clamp-1 mt-0.5">
                 {category.description}
               </p>
             )}
           </div>
-          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <div className="w-9 h-9 rounded-full bg-white/15 backdrop-blur flex items-center justify-center text-white group-hover:bg-white group-hover:text-foreground transition-colors shrink-0">
+            <ArrowLeft className="w-4 h-4" />
           </div>
         </div>
       </div>

@@ -21,8 +21,8 @@ export default async function NewProductPage() {
   return (
     <div className="flex-1 flex flex-col">
       <AdminHeader
-        title="Add New Product"
-        description="Publish a new product item directly into Supabase."
+        title="إضافة منتج جديد"
+        description="أضف منتجاً جديداً إلى متجرك."
         actionButton={
           <Link
             href="/admin/products"
