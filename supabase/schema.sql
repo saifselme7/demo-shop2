@@ -314,13 +314,13 @@ CREATE POLICY "Admin order_items write" ON public.order_items
 CREATE OR REPLACE FUNCTION public.create_order(
     p_customer_name         TEXT,
     p_customer_phone        TEXT,
-    p_customer_email        TEXT DEFAULT NULL,
     p_shipping_address      TEXT,
-    p_notes                 TEXT DEFAULT NULL,
     p_payment_method        TEXT,
+    p_items                 JSONB,
+    p_customer_email        TEXT DEFAULT NULL,
+    p_notes                 TEXT DEFAULT NULL,
     p_payment_transfer_number TEXT DEFAULT NULL,
-    p_payment_proof_path    TEXT DEFAULT NULL,
-    p_items                 JSONB
+    p_payment_proof_path    TEXT DEFAULT NULL
 ) RETURNS JSONB
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
 AS $$
