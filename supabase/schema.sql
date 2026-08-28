@@ -470,15 +470,15 @@ CREATE POLICY "Public product images read" ON storage.objects
 
 DROP POLICY IF EXISTS "Admin product images insert" ON storage.objects;
 CREATE POLICY "Admin product images insert" ON storage.objects
-    FOR INSERT TO authenticated WITH CHECK (bucket_id = 'product-images');
+    FOR INSERT TO authenticated WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
 
 DROP POLICY IF EXISTS "Admin product images update" ON storage.objects;
 CREATE POLICY "Admin product images update" ON storage.objects
-    FOR UPDATE TO authenticated USING (bucket_id = 'product-images') WITH CHECK (bucket_id = 'product-images');
+    FOR UPDATE TO authenticated USING (bucket_id = 'product-images' AND public.is_admin()) WITH CHECK (bucket_id = 'product-images');
 
 DROP POLICY IF EXISTS "Admin product images delete" ON storage.objects;
 CREATE POLICY "Admin product images delete" ON storage.objects
-    FOR DELETE TO authenticated USING (bucket_id = 'product-images');
+    FOR DELETE TO authenticated USING (bucket_id = 'product-images' AND public.is_admin());
 
 -- payment-proofs bucket (PRIVATE) — customer payment screenshots
 INSERT INTO storage.buckets (id, name, public)
@@ -492,15 +492,15 @@ CREATE POLICY "Customers can upload payment proofs" ON storage.objects
 
 DROP POLICY IF EXISTS "Admins read payment proofs" ON storage.objects;
 CREATE POLICY "Admins read payment proofs" ON storage.objects
-    FOR SELECT TO authenticated USING (bucket_id = 'payment-proofs');
+    FOR SELECT TO authenticated USING (bucket_id = 'payment-proofs' AND public.is_admin());
 
 DROP POLICY IF EXISTS "Admins update payment proofs" ON storage.objects;
 CREATE POLICY "Admins update payment proofs" ON storage.objects
-    FOR UPDATE TO authenticated USING (bucket_id = 'payment-proofs') WITH CHECK (bucket_id = 'payment-proofs');
+    FOR UPDATE TO authenticated USING (bucket_id = 'payment-proofs' AND public.is_admin()) WITH CHECK (bucket_id = 'payment-proofs');
 
 DROP POLICY IF EXISTS "Admins delete payment proofs" ON storage.objects;
 CREATE POLICY "Admins delete payment proofs" ON storage.objects
-    FOR DELETE TO authenticated USING (bucket_id = 'payment-proofs');
+    FOR DELETE TO authenticated USING (bucket_id = 'payment-proofs' AND public.is_admin());
 
 -- ============================================================================
 -- 15. SEED — STORE SETTINGS
@@ -546,43 +546,43 @@ INSERT INTO public.products
     (id, category_id, name, slug, description, price, old_price, image_url, is_available, is_featured, stock, sort_order)
 VALUES
     -- تيشيرتات
-    ('p1000000-0000-0000-0000-000000000001','c1000000-0000-0000-0000-000000000001','تيشيرت قطن كلاسيك أبيض','tshirt-cotton-classic-white','تيشيرت قطن مصري 100% بقصّة كلاسيك مريحة. مثالي للاستخدام اليومي ويُلبس مع أي بنطلون.',299.00,399.00,'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',true,true,50,1),
-    ('p1000000-0000-0000-0000-000000000002','c1000000-0000-0000-0000-000000000001','تيشيرت أوفرسايز أسود','tshirt-oversized-black','تيشيرت أوفرسايز بقصّة عصرية واسعة، خامة قطن سميكة مريحة. اللون الأسود يليق بكل الإطلالات.',349.00,NULL,'https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=900&q=80',true,true,45,2),
-    ('p1000000-0000-0000-0000-000000000003','c1000000-0000-0000-0000-000000000001','تيشيرت جرافيك مودرن','tshirt-graphic-modern','تيشيرت جرافيك بطبعة عصرية لافتة، خامة قطن فاخرة وتفاصيل خياطة دقيقة.',379.00,449.00,'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=900&q=80',true,false,30,3),
+    ('a1000000-0000-0000-0000-000000000001','c1000000-0000-0000-0000-000000000001','تيشيرت قطن كلاسيك أبيض','tshirt-cotton-classic-white','تيشيرت قطن مصري 100% بقصّة كلاسيك مريحة. مثالي للاستخدام اليومي ويُلبس مع أي بنطلون.',299.00,399.00,'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',true,true,50,1),
+    ('a1000000-0000-0000-0000-000000000002','c1000000-0000-0000-0000-000000000001','تيشيرت أوفرسايز أسود','tshirt-oversized-black','تيشيرت أوفرسايز بقصّة عصرية واسعة، خامة قطن سميكة مريحة. اللون الأسود يليق بكل الإطلالات.',349.00,NULL,'https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=900&q=80',true,true,45,2),
+    ('a1000000-0000-0000-0000-000000000003','c1000000-0000-0000-0000-000000000001','تيشيرت جرافيك مودرن','tshirt-graphic-modern','تيشيرت جرافيك بطبعة عصرية لافتة، خامة قطن فاخرة وتفاصيل خياطة دقيقة.',379.00,449.00,'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=900&q=80',true,false,30,3),
 
     -- هوديز
-    ('p1000000-0000-0000-0000-000000000004','c1000000-0000-0000-0000-000000000002','هودي كلاسيك أسود','hoodie-classic-black','هودي قطني سميك بجيب أمامي وغطاء رأس مزود بخيط قابل للتعديل. الدفء والأناقة معاً.',649.00,749.00,'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80',true,true,25,1),
-    ('p1000000-0000-0000-0000-000000000005','c1000000-0000-0000-0000-000000000002','هودي رمادي كاجوال','hoodie-grey-casual','هودي بلون رمادي محايد ينسق بسهولة مع كل الملابس. خامة قطن مرن تدوم طويلاً.',699.00,NULL,'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?auto=format&fit=crop&w=900&q=80',true,false,20,2),
-    ('p1000000-0000-0000-0000-000000000006','c1000000-0000-0000-0000-000000000002','هودي فيربز بسحّاب','hoodie-zip-front','هودي بسحّاب أمامي بالكامل وخامة مبطنة دافئة. اختيار عملي للتنقل والرياضة.',799.00,NULL,'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80',true,false,15,3),
+    ('a1000000-0000-0000-0000-000000000004','c1000000-0000-0000-0000-000000000002','هودي كلاسيك أسود','hoodie-classic-black','هودي قطني سميك بجيب أمامي وغطاء رأس مزود بخيط قابل للتعديل. الدفء والأناقة معاً.',649.00,749.00,'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80',true,true,25,1),
+    ('a1000000-0000-0000-0000-000000000005','c1000000-0000-0000-0000-000000000002','هودي رمادي كاجوال','hoodie-grey-casual','هودي بلون رمادي محايد ينسق بسهولة مع كل الملابس. خامة قطن مرن تدوم طويلاً.',699.00,NULL,'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?auto=format&fit=crop&w=900&q=80',true,false,20,2),
+    ('a1000000-0000-0000-0000-000000000006','c1000000-0000-0000-0000-000000000002','هودي فيربز بسحّاب','hoodie-zip-front','هودي بسحّاب أمامي بالكامل وخامة مبطنة دافئة. اختيار عملي للتنقل والرياضة.',799.00,NULL,'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80',true,false,15,3),
 
     -- بناطيل
-    ('p1000000-0000-0000-0000-000000000007','c1000000-0000-0000-0000-000000000003','بنطلون جينز سليم','jeans-slim-fit','بنطلون جينز بقصّة سليم بخصر متوسط، خامة دنيم متينة وتصميم مودرن يناسب كل الأجسام.',599.00,NULL,'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=80',true,true,40,1),
-    ('p1000000-0000-0000-0000-000000000008','c1000000-0000-0000-0000-000000000003','بنطلون كارغو عسكري','cargo-pants-military','بنطلون كارغو بجيوب جانبية واسعة وخامة متينة، عملي وأنيق للإطلالات الكاجوال.',549.00,649.00,'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=900&q=80',true,false,35,2),
-    ('p1000000-0000-0000-0000-000000000009','c1000000-0000-0000-0000-000000000003','بنطلون شينو بيج','chino-beige','بنطلون شينو بلون بيج ناعم، قماش قطني خفيف مثالي لفصل الربيع والخريف.',499.00,NULL,'https://images.unsplash.com/photo-1551854838-212c50b4d184?auto=format&fit=crop&w=900&q=80',true,false,28,3),
+    ('a1000000-0000-0000-0000-000000000007','c1000000-0000-0000-0000-000000000003','بنطلون جينز سليم','jeans-slim-fit','بنطلون جينز بقصّة سليم بخصر متوسط، خامة دنيم متينة وتصميم مودرن يناسب كل الأجسام.',599.00,NULL,'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=80',true,true,40,1),
+    ('a1000000-0000-0000-0000-000000000008','c1000000-0000-0000-0000-000000000003','بنطلون كارغو عسكري','cargo-pants-military','بنطلون كارغو بجيوب جانبية واسعة وخامة متينة، عملي وأنيق للإطلالات الكاجوال.',549.00,649.00,'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=900&q=80',true,false,35,2),
+    ('a1000000-0000-0000-0000-000000000009','c1000000-0000-0000-0000-000000000003','بنطلون شينو بيج','chino-beige','بنطلون شينو بلون بيج ناعم، قماش قطني خفيف مثالي لفصل الربيع والخريف.',499.00,NULL,'https://images.unsplash.com/photo-1551854838-212c50b4d184?auto=format&fit=crop&w=900&q=80',true,false,28,3),
 
     -- قمصان
-    ('p1000000-0000-0000-0000-000000000010','c1000000-0000-0000-0000-000000000004','قميص قطن كلاسيك أبيض','shirt-oxford-white','قميص قطن كلاسيك بياقة أوكسفورد، أنيق للعمل والمناسبات النصف رسمية.',449.00,NULL,'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=900&q=80',true,true,22,1),
-    ('p1000000-0000-0000-0000-000000000011','c1000000-0000-0000-0000-000000000004','قميص كتان كاجوال','shirt-linen-casual','قميص كتان خفيف ومنفّس، مثالي للأجواء الحارة ويُلبس مفتوحاً أو مقفلاً.',529.00,NULL,'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&w=900&q=80',true,false,18,2),
-    ('p1000000-0000-0000-0000-000000000012','c1000000-0000-0000-0000-000000000004','قميص كاروهات رجالي','shirt-plaid','قميص بنقشة كاروهات عصرية، خامة قطن ناعمة وقصّة مريحة.',479.00,549.00,'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&w=900&q=80',true,false,20,3),
+    ('a1000000-0000-0000-0000-000000000010','c1000000-0000-0000-0000-000000000004','قميص قطن كلاسيك أبيض','shirt-oxford-white','قميص قطن كلاسيك بياقة أوكسفورد، أنيق للعمل والمناسبات النصف رسمية.',449.00,NULL,'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=900&q=80',true,true,22,1),
+    ('a1000000-0000-0000-0000-000000000011','c1000000-0000-0000-0000-000000000004','قميص كتان كاجوال','shirt-linen-casual','قميص كتان خفيف ومنفّس، مثالي للأجواء الحارة ويُلبس مفتوحاً أو مقفلاً.',529.00,NULL,'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&w=900&q=80',true,false,18,2),
+    ('a1000000-0000-0000-0000-000000000012','c1000000-0000-0000-0000-000000000004','قميص كاروهات رجالي','shirt-plaid','قميص بنقشة كاروهات عصرية، خامة قطن ناعمة وقصّة مريحة.',479.00,549.00,'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&w=900&q=80',true,false,20,3),
 
     -- جاكيتات
-    ('p1000000-0000-0000-0000-000000000013','c1000000-0000-0000-0000-000000000005','جاكيت جينز','denim-jacket','جاكيت جينز كلاسيك بتصميم خالد، يضيف شخصية لأي إطلالة ويحميك من الجو المعتدل.',999.00,1199.00,'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=900&q=80',true,true,12,1),
-    ('p1000000-0000-0000-0000-000000000014','c1000000-0000-0000-0000-000000000005','بومبر قطني أسود','bomber-jacket-black','بومبر قطني أسود بقصّة رياضية عصرية، خامة مريحة تمنحك إطلالة شبابية.',899.00,NULL,'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=900&q=80',true,false,14,2),
-    ('p1000000-0000-0000-0000-000000000015','c1000000-0000-0000-0000-000000000005','معطف شتوي طويل','winter-coat','معطف شتوي طويل مصمم للدفء القصوى، خامة صوفية فاخرة وتصميم راقٍ.',1499.00,1699.00,'https://images.unsplash.com/photo-1548624313-0396c75e4b1a?auto=format&fit=crop&w=900&q=80',true,false,8,3),
+    ('a1000000-0000-0000-0000-000000000013','c1000000-0000-0000-0000-000000000005','جاكيت جينز','denim-jacket','جاكيت جينز كلاسيك بتصميم خالد، يضيف شخصية لأي إطلالة ويحميك من الجو المعتدل.',999.00,1199.00,'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=900&q=80',true,true,12,1),
+    ('a1000000-0000-0000-0000-000000000014','c1000000-0000-0000-0000-000000000005','بومبر قطني أسود','bomber-jacket-black','بومبر قطني أسود بقصّة رياضية عصرية، خامة مريحة تمنحك إطلالة شبابية.',899.00,NULL,'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=900&q=80',true,false,14,2),
+    ('a1000000-0000-0000-0000-000000000015','c1000000-0000-0000-0000-000000000005','معطف شتوي طويل','winter-coat','معطف شتوي طويل مصمم للدفء القصوى، خامة صوفية فاخرة وتصميم راقٍ.',1499.00,1699.00,'https://images.unsplash.com/photo-1548624313-0396c75e4b1a?auto=format&fit=crop&w=900&q=80',true,false,8,3),
 
     -- شورتات
-    ('p1000000-0000-0000-0000-000000000016','c1000000-0000-0000-0000-000000000006','شورت جينز','denim-shorts','شورت جينز قصير بقصّة مريحة، مثالي لفصل الصيف والإطلالات البحرية.',349.00,NULL,'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?auto=format&fit=crop&w=900&q=80',true,false,30,1),
-    ('p1000000-0000-0000-0000-000000000017','c1000000-0000-0000-0000-000000000006','شورت رياضي','sport-shorts','شورت رياضي بخامة خفيفة وسريعة الجفاف، مثالي للجيم والجري.',299.00,NULL,'https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=900&q=80',true,false,26,2),
+    ('a1000000-0000-0000-0000-000000000016','c1000000-0000-0000-0000-000000000006','شورت جينز','denim-shorts','شورت جينز قصير بقصّة مريحة، مثالي لفصل الصيف والإطلالات البحرية.',349.00,NULL,'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?auto=format&fit=crop&w=900&q=80',true,false,30,1),
+    ('a1000000-0000-0000-0000-000000000017','c1000000-0000-0000-0000-000000000006','شورت رياضي','sport-shorts','شورت رياضي بخامة خفيفة وسريعة الجفاف، مثالي للجيم والجري.',299.00,NULL,'https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=900&q=80',true,false,26,2),
 
     -- ملابس رياضية
-    ('p1000000-0000-0000-0000-000000000018','c1000000-0000-0000-0000-000000000007','طقم رياضي كامل','tracksuit-set','طقم رياضي (تيشيرت + بنطلون) بتصميم عصري وخامة تنفسية للتمرين اليومي.',799.00,949.00,'https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=900&q=80',true,true,16,1),
-    ('p1000000-0000-0000-0000-000000000019','c1000000-0000-0000-0000-000000000007','تيشيرت رياضي تنفّسي','sports-tee-breathable','تيشيرت رياضي بخامة دراي-فيت تمتص العرق وتمنحك راحة تامة أثناء التمرين.',399.00,NULL,'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=80',true,false,24,2),
-    ('p1000000-0000-0000-0000-000000000020','c1000000-0000-0000-0000-000000000007','ليجنج رياضي','sports-leggings','ليجنج رياضي بخصر مرتفع وخامة مطاطية تدعم جسمك أثناء التمارين.',499.00,599.00,'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=900&q=80',true,false,20,3),
+    ('a1000000-0000-0000-0000-000000000018','c1000000-0000-0000-0000-000000000007','طقم رياضي كامل','tracksuit-set','طقم رياضي (تيشيرت + بنطلون) بتصميم عصري وخامة تنفسية للتمرين اليومي.',799.00,949.00,'https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=900&q=80',true,true,16,1),
+    ('a1000000-0000-0000-0000-000000000019','c1000000-0000-0000-0000-000000000007','تيشيرت رياضي تنفّسي','sports-tee-breathable','تيشيرت رياضي بخامة دراي-فيت تمتص العرق وتمنحك راحة تامة أثناء التمرين.',399.00,NULL,'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=80',true,false,24,2),
+    ('a1000000-0000-0000-0000-000000000020','c1000000-0000-0000-0000-000000000007','ليجنج رياضي','sports-leggings','ليجنج رياضي بخصر مرتفع وخامة مطاطية تدعم جسمك أثناء التمارين.',499.00,599.00,'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=900&q=80',true,false,20,3),
 
     -- إكسسوارات
-    ('p1000000-0000-0000-0000-000000000021','c1000000-0000-0000-0000-000000000008','كاب أسود مطوّز','black-cap','كاب قطني أسود بتطريز بسيط، يكمّل إطلالتك الكاجوال ويحميك من الشمس.',199.00,NULL,'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=900&q=80',true,true,60,1),
-    ('p1000000-0000-0000-0000-000000000022','c1000000-0000-0000-0000-000000000008','حزام جلد رجالي','leather-belt','حزام جلد طبيعي بإبزيم معدني متين، خامة فاخرة تدوم لسنوات.',249.00,NULL,'https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=900&q=80',true,false,40,2),
-    ('p1000000-0000-0000-0000-000000000023','c1000000-0000-0000-0000-000000000008','باكو جوارب قطن (٣ قطع)','cotton-socks-3pack','باكو ٣ جوارب قطن مريحة بألوان متعددة تناسب الاستخدام اليومي.',149.00,NULL,'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?auto=format&fit=crop&w=900&q=80',true,false,100,3)
+    ('a1000000-0000-0000-0000-000000000021','c1000000-0000-0000-0000-000000000008','كاب أسود مطوّز','black-cap','كاب قطني أسود بتطريز بسيط، يكمّل إطلالتك الكاجوال ويحميك من الشمس.',199.00,NULL,'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=900&q=80',true,true,60,1),
+    ('a1000000-0000-0000-0000-000000000022','c1000000-0000-0000-0000-000000000008','حزام جلد رجالي','leather-belt','حزام جلد طبيعي بإبزيم معدني متين، خامة فاخرة تدوم لسنوات.',249.00,NULL,'https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=900&q=80',true,false,40,2),
+    ('a1000000-0000-0000-0000-000000000023','c1000000-0000-0000-0000-000000000008','باكو جوارب قطن (٣ قطع)','cotton-socks-3pack','باكو ٣ جوارب قطن مريحة بألوان متعددة تناسب الاستخدام اليومي.',149.00,NULL,'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?auto=format&fit=crop&w=900&q=80',true,false,100,3)
 ON CONFLICT (slug) DO UPDATE
 SET name = EXCLUDED.name, description = EXCLUDED.description,
     price = EXCLUDED.price, old_price = EXCLUDED.old_price,
@@ -595,10 +595,10 @@ SET name = EXCLUDED.name, description = EXCLUDED.description,
 INSERT INTO public.product_images (product_id, image_url, sort_order)
 SELECT p.id, u.url, g.n
 FROM (VALUES
-    ('p1000000-0000-0000-0000-000000000001','https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=900&q=80'),
-    ('p1000000-0000-0000-0000-000000000001','https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=900&q=80'),
-    ('p1000000-0000-0000-0000-000000000004','https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?auto=format&fit=crop&w=900&q=80'),
-    ('p1000000-0000-0000-0000-000000000013','https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&w=900&q=80')
+    ('a1000000-0000-0000-0000-000000000001','https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=900&q=80'),
+    ('a1000000-0000-0000-0000-000000000001','https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=900&q=80'),
+    ('a1000000-0000-0000-0000-000000000004','https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?auto=format&fit=crop&w=900&q=80'),
+    ('a1000000-0000-0000-0000-000000000013','https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&w=900&q=80')
 ) AS u(pid, url)
 CROSS JOIN (SELECT generate_series(1,1) AS n) g
 JOIN public.products p ON p.id = u.pid::uuid
